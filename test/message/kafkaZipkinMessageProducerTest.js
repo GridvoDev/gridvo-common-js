@@ -2,14 +2,13 @@
 const kafka = require('kafka-node');
 const sinon = require('sinon');
 const {
-    ExplicitContext,
-    ConsoleRecorder
+    ExplicitContext
 } = require('zipkin');
 const _ = require('underscore');
 const co = require('co');
 const should = require('should');
 const KafkaZipkinMessageProducer = require('../../lib/message/kafkaZipkinMessageProducer');
-const TraceContext = require('../../lib/trace/traceContext');
+const {TraceContext, createZipkinTracer} = require('../../lib/trace');
 
 describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
     let ctxImpl;
@@ -54,12 +53,10 @@ describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
         co(setup).then(()=> {
             recorder = {record};
             ctxImpl = new ExplicitContext();
+            let tracer = createZipkinTracer({ctxImpl, recorder});
             messageProducer = new KafkaZipkinMessageProducer({
-                serviceName: "test-service",
-                zipkinOpts: {
-                    recorder,
-                    ctxImpl
-                }
+                tracer,
+                serviceName: "test-service"
             });
             done();
         }).catch(err=> {
