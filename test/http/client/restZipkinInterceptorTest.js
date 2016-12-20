@@ -25,6 +25,7 @@ describe('restZipkinInterceptor integration test', ()=> {
                     res.json({
                         traceId: req.header(ZipkinHeader.TraceId),
                         spanId: req.header(ZipkinHeader.SpanId),
+                        parentSpanId: req.header(ZipkinHeader.ParentSpanId),
                         step: req.header(httpHeader.step)
                     });
                 });
@@ -49,6 +50,7 @@ describe('restZipkinInterceptor integration test', ()=> {
                             server.close();
                             let data = JSON.parse(response.entity);
                             data.traceId.should.be.eql("aaa");
+                            data.parentSpanId.should.be.eql("ccc");
                             data.step.should.be.eql("3");
                             const annotations = record.args.map(args => args[0]);
                             const traceId = annotations[0].traceId.traceId;
@@ -57,7 +59,8 @@ describe('restZipkinInterceptor integration test', ()=> {
                             data.spanId.should.be.eql(spanId);
                             annotations.forEach(ann => ann.traceId.traceId.should.equal(traceId));
                             annotations.forEach(ann => ann.traceId.spanId.should.equal(spanId));
-                            annotations[0].annotation.annotationType.should.equal('ClientSend');
+                            annotations[0].annotation.annotationType.should.equal('Message');
+                            annotations[0].annotation.message.should.equal('rest send');
                             annotations[1].annotation.annotationType.should.equal('ServiceName');
                             annotations[1].annotation.serviceName.should.equal('test-service');
                             annotations[2].annotation.annotationType.should.equal('Rpc');
@@ -67,7 +70,8 @@ describe('restZipkinInterceptor integration test', ()=> {
                             annotations[3].annotation.value.should.equal(url);
                             annotations[4].annotation.annotationType.should.equal('ServerAddr');
                             annotations[4].annotation.serviceName.should.equal('test-remote-service');
-                            annotations[5].annotation.annotationType.should.equal('ClientRecv');
+                            annotations[5].annotation.annotationType.should.equal('Message');
+                            annotations[5].annotation.message.should.equal('rest recv');
                             annotations[6].annotation.annotationType.should.equal('ServiceName');
                             annotations[6].annotation.serviceName.should.equal('test-service');
                             annotations[7].annotation.annotationType.should.equal('BinaryAnnotation');
