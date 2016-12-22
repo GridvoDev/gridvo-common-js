@@ -48,8 +48,7 @@ describe('expressZipkinMiddleware integration test', ()=> {
                         spanId.should.be.eql("bbb");
                         annotations.forEach(ann => ann.traceId.traceId.should.equal(traceId));
                         annotations.forEach(ann => ann.traceId.spanId.should.equal(spanId));
-                        annotations[0].annotation.annotationType.should.equal('Message');
-                        annotations[0].annotation.message.should.equal('express server recv');
+                        annotations[0].annotation.annotationType.should.equal('ServerRecv');
                         annotations[1].annotation.annotationType.should.equal('ServiceName');
                         annotations[1].annotation.serviceName.should.equal('service-a');
                         annotations[2].annotation.annotationType.should.equal('Rpc');
@@ -57,8 +56,7 @@ describe('expressZipkinMiddleware integration test', ()=> {
                         annotations[3].annotation.annotationType.should.equal('BinaryAnnotation');
                         annotations[3].annotation.key.should.equal('http.url');
                         annotations[3].annotation.value.should.equal(url);
-                        annotations[5].annotation.annotationType.should.equal('Message');
-                        annotations[5].annotation.message.should.equal('express server send');
+                        annotations[5].annotation.annotationType.should.equal('ServerSend');
                         annotations[6].annotation.annotationType.should.equal('ServiceName');
                         annotations[6].annotation.serviceName.should.equal('service-a');
                         annotations[7].annotation.annotationType.should.equal('BinaryAnnotation');
@@ -95,8 +93,7 @@ describe('expressZipkinMiddleware integration test', ()=> {
                         let spanId = annotations[0].traceId.spanId;
                         annotations.forEach(ann => ann.traceId.traceId.should.equal(traceId));
                         annotations.forEach(ann => ann.traceId.spanId.should.equal(spanId));
-                        annotations[0].annotation.annotationType.should.equal('Message');
-                        annotations[0].annotation.message.should.equal('express server recv');;
+                        annotations[0].annotation.annotationType.should.equal('ServerRecv');
                         annotations[1].annotation.annotationType.should.equal('ServiceName');
                         annotations[1].annotation.serviceName.should.equal('service-a');
                         annotations[2].annotation.annotationType.should.equal('Rpc');
@@ -104,8 +101,7 @@ describe('expressZipkinMiddleware integration test', ()=> {
                         annotations[3].annotation.annotationType.should.equal('BinaryAnnotation');
                         annotations[3].annotation.key.should.equal('http.url');
                         annotations[3].annotation.value.should.equal(url);
-                        annotations[4].annotation.annotationType.should.equal('Message');
-                        annotations[4].annotation.message.should.equal('express server send');
+                        annotations[4].annotation.annotationType.should.equal('ServerSend');
                         annotations[5].annotation.annotationType.should.equal('ServiceName');
                         annotations[5].annotation.serviceName.should.equal('service-a');
                         annotations[6].annotation.annotationType.should.equal('BinaryAnnotation');

@@ -93,8 +93,7 @@ describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
                         let spanId = annotations[0].traceId.spanId;
                         annotations.forEach(ann=> ann.traceId.traceId.should.equal(traceId));
                         annotations.forEach(ann=> ann.traceId.spanId.should.equal(spanId));
-                        annotations[0].annotation.annotationType.should.equal('Message');
-                        annotations[0].annotation.message.should.equal('kafka client send');
+                        annotations[0].annotation.annotationType.should.equal('ClientSend');
                         annotations[1].annotation.annotationType.should.equal("ServiceName");
                         annotations[1].annotation.serviceName.should.equal("test-service");
                         annotations[2].annotation.annotationType.should.equal("Rpc");
@@ -102,8 +101,7 @@ describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
                         annotations[3].annotation.annotationType.should.equal("BinaryAnnotation");
                         annotations[3].annotation.key.should.equal("topic");
                         annotations[3].annotation.value.should.equal("test-topic1");
-                        annotations[4].annotation.annotationType.should.equal('Message');
-                        annotations[4].annotation.message.should.equal('kafka client recv');
+                        annotations[4].annotation.annotationType.should.equal('ClientRecv');
                         annotations[5].annotation.annotationType.should.equal("ServiceName");
                         annotations[5].annotation.serviceName.should.equal("test-service");
                         annotations[6].annotation.annotationType.should.equal("BinaryAnnotation");
