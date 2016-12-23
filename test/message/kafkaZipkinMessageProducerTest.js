@@ -97,13 +97,13 @@ describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
                         annotations[1].annotation.annotationType.should.equal("ServiceName");
                         annotations[1].annotation.serviceName.should.equal("test-service");
                         annotations[2].annotation.annotationType.should.equal("Rpc");
-                        annotations[2].annotation.name.should.equal("kafka-topic-produce");
+                        annotations[2].annotation.name.should.equal("kafka client produce");
                         annotations[3].annotation.annotationType.should.equal("BinaryAnnotation");
                         annotations[3].annotation.key.should.equal("topic");
                         annotations[3].annotation.value.should.equal("test-topic1");
-                        annotations[4].annotation.annotationType.should.equal('ClientRecv');
-                        annotations[5].annotation.annotationType.should.equal("ServiceName");
-                        annotations[5].annotation.serviceName.should.equal("test-service");
+                        annotations[4].annotation.annotationType.should.equal('ServerAddr');
+                        annotations[4].annotation.serviceName.should.equal('kafka');
+                        annotations[5].annotation.annotationType.should.equal('ClientRecv');
                         annotations[6].annotation.annotationType.should.equal("BinaryAnnotation");
                         annotations[6].annotation.key.should.equal("result");
                         _.isNull(data).should.be.eql(false);

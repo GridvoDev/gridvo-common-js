@@ -63,18 +63,16 @@ describe('restZipkinInterceptor integration test', ()=> {
                             annotations[1].annotation.annotationType.should.equal('ServiceName');
                             annotations[1].annotation.serviceName.should.equal('test-service');
                             annotations[2].annotation.annotationType.should.equal('Rpc');
-                            annotations[2].annotation.name.should.equal('GET');
+                            annotations[2].annotation.name.should.equal('rest send GET request');
                             annotations[3].annotation.annotationType.should.equal('BinaryAnnotation');
                             annotations[3].annotation.key.should.equal('http.url');
                             annotations[3].annotation.value.should.equal(url);
                             annotations[4].annotation.annotationType.should.equal('ServerAddr');
                             annotations[4].annotation.serviceName.should.equal('test-remote-service');
                             annotations[5].annotation.annotationType.should.equal('ClientRecv');
-                            annotations[6].annotation.annotationType.should.equal('ServiceName');
-                            annotations[6].annotation.serviceName.should.equal('test-service');
-                            annotations[7].annotation.annotationType.should.equal('BinaryAnnotation');
-                            annotations[7].annotation.key.should.equal('http.status_code');
-                            annotations[7].annotation.value.should.equal("200");
+                            annotations[6].annotation.annotationType.should.equal('BinaryAnnotation');
+                            annotations[6].annotation.key.should.equal('http.status_code');
+                            annotations[6].annotation.value.should.equal("200");
                             done();
                         }).catch(err=> {
                             server.close();
