@@ -34,7 +34,27 @@ describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
                             if (err) {
                                 reject(err)
                             }
-                            resolve();
+                            let message = {
+                                suiteID: "suiteID",
+                                corpID: "wxf8b4f85f3a794e77",
+                                timestamp: 1403610513000,
+                                zipkinTrace: {
+                                    traceID: "aaa",
+                                    parentID: "bbb",
+                                    spanID: "ccc",
+                                    flags: 1,
+                                    step: 3
+                                }
+                            };
+                            producer.send([{
+                                topic: "test-topic3",
+                                messages: [JSON.stringify(message)]
+                            }], (err)=> {
+                                if (err) {
+                                    reject(err)
+                                }
+                                resolve();
+                            });
                         });
                     });
                 });
@@ -89,23 +109,6 @@ describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
                         annotations[5].annotation.annotationType.should.equal('BinaryAnnotation');
                         done();
                     });
-                    let message = {
-                        suiteID: "suiteID",
-                        corpID: "wxf8b4f85f3a794e77",
-                        timestamp: 1403610513000,
-                        zipkinTrace: {
-                            traceID: "aaa",
-                            parentID: "bbb",
-                            spanID: "ccc",
-                            flags: 1,
-                            step: 3
-                        }
-                    };
-                    producer.send([{
-                        topic: "test-topic3",
-                        messages: [JSON.stringify(message)]
-                    }], ()=> {
-                    });
                 });
             });
             after(done=> {
@@ -116,7 +119,9 @@ describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
             });
         });
     });
-    after(()=> {
-        messageConsumer.close();
+    after(done=> {
+        messageConsumer.close(()=> {
+            done();
+        });
     });
 });

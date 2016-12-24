@@ -24,9 +24,9 @@ describe('expressZipkinMiddleware integration test', ()=> {
                     serviceName: 'service-a'
                 }));
                 app.get('/test', (req, res) => {
-                    req.zipkinTrace.traceId.should.be.eql("aaa");
-                    req.zipkinTrace.parentId.should.be.eql("bbb");
-                    req.zipkinTrace.spanId.should.be.eql("bbb");
+                    req.zipkinTrace.traceID.should.be.eql("aaa");
+                    req.zipkinTrace.parentID.should.be.eql("bbb");
+                    req.zipkinTrace.spanID.should.be.eql("bbb");
                     res.end();
                 });
                 let server = app.listen(3001, ()=> {

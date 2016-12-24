@@ -22,9 +22,9 @@ describe('feachTraceContext function test', ()=> {
             it('return context if no http header and traceId eql spanId', ()=> {
                 let req = {
                     zipkinTrace: {
-                        traceId: "aaa",
-                        parentId: "aaa",
-                        spanId: "aaa",
+                        traceID: "aaa",
+                        parentID: "aaa",
+                        spanID: "aaa",
                         flags: 1
                     },
                     header: headerName=> {
@@ -41,9 +41,9 @@ describe('feachTraceContext function test', ()=> {
             it('return context if no http header and traceId not eql spanId', ()=> {
                 let req = {
                     zipkinTrace: {
-                        traceId: "aaa",
-                        parentId: "aaa",
-                        spanId: "bbb",
+                        traceID: "aaa",
+                        parentID: "aaa",
+                        spanID: "bbb",
                         flags: 0
                     },
                     header: headerName=> {
@@ -60,9 +60,9 @@ describe('feachTraceContext function test', ()=> {
             it('return context if have http header', ()=> {
                 let req = {
                     zipkinTrace: {
-                        traceId: "aaa",
-                        parentId: "aaa",
-                        spanId: "aaa",
+                        traceID: "aaa",
+                        parentID: "aaa",
+                        spanID: "aaa",
                         flags: 1
                     },
                     header: headerName=> {
