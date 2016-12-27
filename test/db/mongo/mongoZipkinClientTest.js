@@ -9,7 +9,7 @@ const {
 const {createMongoZipkinClient} = require('../../../lib/db/mongo/mongoZipkinClient');
 const {TraceContext, createZipkinTracer} = require('../../../lib/trace');
 
-describe.only('restZipkinInterceptor integration test', ()=> {
+describe('restZipkinInterceptor integration test', ()=> {
     let record = sinon.spy();
     let recorder = {record};
     let ctxImpl = new ExplicitContext();
