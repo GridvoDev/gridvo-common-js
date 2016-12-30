@@ -87,7 +87,8 @@ describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
                         topic: "test-topic3"
                     }, {
                         topic: "test-topic5"
-                    }], (err, data)=> {
+                    }], (err, message)=> {
+                        let data = JSON.parse(message.value);
                         data.suiteID.should.be.eql("suiteID");
                         data.corpID.should.be.eql("wxf8b4f85f3a794e77");
                         data.timestamp.should.be.eql(1403610513000);
