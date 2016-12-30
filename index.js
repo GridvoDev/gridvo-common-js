@@ -2,14 +2,14 @@
 const {Log4jsLogger}=require("./lib/log");
 const {createMongoZipkinClient}=require("./lib/db");
 const {expressZipkinMiddleware, expressWithZipkinTraceContextFeach, restZipkinInterceptor}=require("./lib/http");
-const {KafkaZipkinMessageProducer, kafkaZipkinMessageConsumer, kafkaWithZipkinTraceContextFeach}=require("./lib/message");
+const {KafkaZipkinMessageProducer, KafkaZipkinMessageConsumer, kafkaWithZipkinTraceContextFeach}=require("./lib/message");
 const {TraceContext, transformTraceContextToZK, createZipkinTracer}=require("./lib/trace");
 
 module.exports = {
     Log4jsLogger,
     createMongoZipkinClient,
     KafkaZipkinMessageProducer,
-    kafkaZipkinMessageConsumer,
+    KafkaZipkinMessageConsumer,
     kafkaWithZipkinTraceContextFeach,
     expressZipkinMiddleware,
     expressWithZipkinTraceContextFeach,
