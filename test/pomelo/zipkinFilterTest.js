@@ -43,12 +43,10 @@ describe('zipkinFilter integration test', ()=> {
                     annotations[0].annotation.annotationType.should.equal('ServerRecv');
                     annotations[1].annotation.annotationType.should.equal('ServiceName');
                     annotations[1].annotation.serviceName.should.equal('service-a');
-                    annotations[2].annotation.annotationType.should.equal('Rpc');
-                    annotations[2].annotation.name.should.equal('pomelo recv publish request');
-                    annotations[3].annotation.annotationType.should.equal('LocalAddr');
-                    annotations[4].annotation.annotationType.should.equal('BinaryAnnotation');
-                    annotations[4].annotation.key.should.equal('topic');
-                    annotations[4].annotation.value.should.equal("test-topic");
+                    annotations[2].annotation.annotationType.should.equal('LocalAddr');
+                    annotations[3].annotation.annotationType.should.equal('BinaryAnnotation');
+                    annotations[3].annotation.key.should.equal('pomelo.msg');
+                    annotations[3].annotation.value.should.equal('{"cmd":"publish","topic":"test-topic"}');
                 });
                 service.after(filter);
                 service.afterFilter(null, {
@@ -60,10 +58,10 @@ describe('zipkinFilter integration test', ()=> {
                     should.exist(mockSession);
                     should.strictEqual(mockSession, _session);
                     let annotations = record.args.map(args => args[0]);
-                    annotations[5].annotation.annotationType.should.equal('ServerSend');
-                    annotations[6].annotation.annotationType.should.equal('BinaryAnnotation');
-                    annotations[6].annotation.key.should.equal('errcode');
-                    annotations[6].annotation.value.should.equal("0");
+                    annotations[4].annotation.annotationType.should.equal('ServerSend');
+                    annotations[5].annotation.annotationType.should.equal('BinaryAnnotation');
+                    annotations[5].annotation.key.should.equal('pomelo.res.errcode');
+                    annotations[5].annotation.value.should.equal("0");
                     done();
                 });
             });
