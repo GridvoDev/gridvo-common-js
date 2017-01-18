@@ -4,6 +4,7 @@ const {createMongoZipkinClient}=require("./lib/db");
 const {expressZipkinMiddleware, expressWithZipkinTraceContextFeach, restZipkinInterceptor}=require("./lib/http");
 const {KafkaZipkinMessageProducer, KafkaZipkinMessageConsumer, kafkaWithZipkinTraceContextFeach}=require("./lib/message");
 const {TraceContext, transformTraceContextToZK, createZipkinTracer}=require("./lib/trace");
+const {createZipkinComponent, createZipkinFilter, pomeloWithZipkinTraceContextFeach}=require("./lib/pomelo");
 
 module.exports = {
     Log4jsLogger,
@@ -16,5 +17,8 @@ module.exports = {
     restZipkinInterceptor,
     TraceContext,
     transformTraceContextToZK,
-    createZipkinTracer
+    createZipkinTracer,
+    createZipkinComponent,
+    createZipkinFilter,
+    pomeloWithZipkinTraceContextFeach
 };
