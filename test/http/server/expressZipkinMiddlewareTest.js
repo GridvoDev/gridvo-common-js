@@ -7,18 +7,23 @@ const {
 } = require('zipkin');
 const fetch = require('node-fetch');
 const express = require('express');
+const bodyParser = require('body-parser');
 const expressZipkinMiddleware = require('../../../lib/http/server/expressZipkinMiddleware');
 const {createZipkinTracer} = require('../../../lib/trace');
 
-describe('expressZipkinMiddleware integration test', ()=> {
-    describe("get zipkin http context form req", ()=> {
-        context('get http context', ()=> {
-            it('is ok then client send http context', done=> {
+describe('expressZipkinMiddleware integration test', () => {
+    before(() => {
+        process.env.IS_DEBUG = true;
+    });
+    describe("get zipkin http context form req", () => {
+        context('get http context', () => {
+            it('is ok then client send http context', done => {
                 let record = sinon.spy();
                 let recorder = {record};
                 let ctxImpl = new ExplicitContext();
                 let tracer = createZipkinTracer({ctxImpl, recorder});
                 let app = express();
+                app.use(bodyParser.raw());
                 app.use(expressZipkinMiddleware({
                     tracer,
                     serviceName: 'service-a'
@@ -27,9 +32,9 @@ describe('expressZipkinMiddleware integration test', ()=> {
                     req.zipkinTrace.traceID.should.be.eql("aaa");
                     req.zipkinTrace.parentID.should.be.eql("bbb");
                     req.zipkinTrace.spanID.should.be.eql("bbb");
-                    res.end();
+                    res.end("this a test");
                 });
-                let server = app.listen(3001, ()=> {
+                let server = app.listen(3001, () => {
                     let port = server.address().port;
                     let url = `http://127.0.0.1:${port}/test`;
                     fetch(url, {
@@ -39,7 +44,7 @@ describe('expressZipkinMiddleware integration test', ()=> {
                             'X-B3-SpanId': 'bbb',
                             'X-B3-Flags': '1'
                         }
-                    }).then(()=> {
+                    }).then(() => {
                         server.close();
                         let annotations = record.args.map(args => args[0]);
                         let traceId = annotations[0].traceId.traceId;
@@ -57,15 +62,17 @@ describe('expressZipkinMiddleware integration test', ()=> {
                         annotations[4].annotation.annotationType.should.equal('BinaryAnnotation');
                         annotations[4].annotation.key.should.equal('http.url');
                         annotations[4].annotation.value.should.equal(url);
-                        annotations[6].annotation.annotationType.should.equal('ServerSend');
-                        annotations[7].annotation.annotationType.should.equal('BinaryAnnotation');
-                        annotations[7].annotation.key.should.equal('http.status_code');
-                        annotations[7].annotation.value.should.equal("200");
+                        annotations[5].annotation.annotationType.should.equal('BinaryAnnotation');
+                        annotations[5].annotation.key.should.equal('http.req_body');
+                        annotations[7].annotation.annotationType.should.equal('ServerSend');
+                        annotations[8].annotation.annotationType.should.equal('BinaryAnnotation');
+                        annotations[8].annotation.key.should.equal('http.status_code');
+                        annotations[8].annotation.value.should.equal("200");
                         done();
                     });
                 });
             });
-            it('is ok then client no send http context', done=> {
+            it('is ok then client no send http context', done => {
                 let record = sinon.spy();
                 let recorder = {record};
                 let ctxImpl = new ExplicitContext();
@@ -78,14 +85,14 @@ describe('expressZipkinMiddleware integration test', ()=> {
                 app.get('/test', (req, res) => {
                     _.isUndefined(req.zipkinTrace).should.be.eql(false);
                     _.isNull(req.zipkinTrace).should.be.eql(false);
-                    res.end();
+                    res.end("test");
                 });
-                let server = app.listen(3001, ()=> {
+                let server = app.listen(3001, () => {
                     let port = server.address().port;
                     let url = `http://127.0.0.1:${port}/test`;
                     fetch(url, {
                         method: 'get'
-                    }).then(()=> {
+                    }).then(() => {
                         server.close();
                         let annotations = record.args.map(args => args[0]);
                         let traceId = annotations[0].traceId.traceId;
@@ -101,14 +108,20 @@ describe('expressZipkinMiddleware integration test', ()=> {
                         annotations[4].annotation.annotationType.should.equal('BinaryAnnotation');
                         annotations[4].annotation.key.should.equal('http.url');
                         annotations[4].annotation.value.should.equal(url);
-                        annotations[5].annotation.annotationType.should.equal('ServerSend');
-                        annotations[6].annotation.annotationType.should.equal('BinaryAnnotation');
-                        annotations[6].annotation.key.should.equal('http.status_code');
-                        annotations[6].annotation.value.should.equal("200");
+                        annotations[5].annotation.annotationType.should.equal('BinaryAnnotation');
+                        annotations[5].annotation.key.should.equal('http.req_body');
+                        annotations[5].annotation.value.should.equal("null");
+                        annotations[6].annotation.annotationType.should.equal('ServerSend');
+                        annotations[7].annotation.annotationType.should.equal('BinaryAnnotation');
+                        annotations[7].annotation.key.should.equal('http.status_code');
+                        annotations[7].annotation.value.should.equal("200");
                         done();
                     });
                 });
             });
         });
+    });
+    after(() => {
+        delete process.env.IS_DEBUG;
     });
 });

@@ -12,14 +12,17 @@ const restZipkinInterceptor = require('../../../lib/http/client/restZipkinInterc
 const httpHeader = require('../../../lib/http/httpHeader');
 const {TraceContext, createZipkinTracer} = require('../../../lib/trace');
 
-describe('restZipkinInterceptor integration test', ()=> {
+describe('restZipkinInterceptor integration test', () => {
     let record = sinon.spy();
     let recorder = {record};
     let ctxImpl = new ExplicitContext();
     let tracer = createZipkinTracer({ctxImpl, recorder});
-    describe("wrap rest http client", ()=> {
-        context('requst web werver', ()=> {
-            it('should add headers to requests', done=> {
+    before(() => {
+        process.env.IS_DEBUG = true;
+    });
+    describe("wrap rest http client", () => {
+        context('requst web werver', () => {
+            it('should add headers to requests', done => {
                 let app = express();
                 app.get('/test', (req, res) => {
                     res.json({
@@ -29,8 +32,8 @@ describe('restZipkinInterceptor integration test', ()=> {
                         step: req.header(httpHeader.step)
                     });
                 });
-                let server = app.listen(3001, ()=> {
-                    ctxImpl.scoped(()=> {
+                let server = app.listen(3001, () => {
+                    ctxImpl.scoped(() => {
                         let traceContext = new TraceContext({
                             traceID: "aaa",
                             parentID: "bbb",
@@ -46,7 +49,7 @@ describe('restZipkinInterceptor integration test', ()=> {
                         });
                         let port = server.address().port;
                         let url = `http://127.0.0.1:${port}/test`;
-                        client(url).then(response=> {
+                        client(url).then(response => {
                             server.close();
                             let data = JSON.parse(response.entity);
                             data.traceId.should.be.eql("aaa");
@@ -67,14 +70,19 @@ describe('restZipkinInterceptor integration test', ()=> {
                             annotations[3].annotation.annotationType.should.equal('BinaryAnnotation');
                             annotations[3].annotation.key.should.equal('http.url');
                             annotations[3].annotation.value.should.equal(url);
-                            annotations[4].annotation.annotationType.should.equal('ServerAddr');
-                            annotations[4].annotation.serviceName.should.equal('test-remote-service');
-                            annotations[5].annotation.annotationType.should.equal('ClientRecv');
-                            annotations[6].annotation.annotationType.should.equal('BinaryAnnotation');
-                            annotations[6].annotation.key.should.equal('http.status_code');
-                            annotations[6].annotation.value.should.equal("200");
+                            annotations[4].annotation.annotationType.should.equal('BinaryAnnotation');
+                            annotations[4].annotation.key.should.equal('http.req_body');
+                            annotations[4].annotation.value.should.equal("null");
+                            annotations[5].annotation.annotationType.should.equal('ServerAddr');
+                            annotations[5].annotation.serviceName.should.equal('test-remote-service');
+                            annotations[6].annotation.annotationType.should.equal('ClientRecv');
+                            annotations[7].annotation.annotationType.should.equal('BinaryAnnotation');
+                            annotations[7].annotation.key.should.equal('http.status_code');
+                            annotations[7].annotation.value.should.equal("200");
+                            annotations[8].annotation.annotationType.should.equal('BinaryAnnotation');
+                            annotations[8].annotation.key.should.equal('http.res_body');
                             done();
-                        }).catch(err=> {
+                        }).catch(err => {
                             server.close();
                             done(err);
                         });
@@ -82,5 +90,8 @@ describe('restZipkinInterceptor integration test', ()=> {
                 });
             });
         });
+    });
+    after(() => {
+        delete process.env.IS_DEBUG;
     });
 });
