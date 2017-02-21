@@ -9,10 +9,13 @@ const zipkinFilter = require('../../lib/pomelo/zipkinFilter');
 const {createZipkinTracer} = require('../../lib/trace');
 const FilterService = require('./mockPomeloFilterService');
 
-describe('zipkinFilter integration test', ()=> {
-    describe("zipkinFilter(options)", ()=> {
-        context('zipkin support', ()=> {
-            it('is filter can support zipkin', done=> {
+describe('zipkinFilter integration test', () => {
+    before(() => {
+        process.env.IS_DEBUG = true;
+    });
+    describe("zipkinFilter(options)", () => {
+        context('zipkin support', () => {
+            it('is filter can support zipkin', done => {
                 let record = sinon.spy();
                 let recorder = {record};
                 let ctxImpl = new ExplicitContext();
@@ -30,7 +33,7 @@ describe('zipkinFilter integration test', ()=> {
                 service.beforeFilter({
                     cmd: "publish",
                     topic: "test-topic"
-                }, mockSession, ()=> {
+                }, mockSession, () => {
                     _session = mockSession;
                     should.exist(mockSession);
                     should.exist(mockSession.traceID);
@@ -54,7 +57,7 @@ describe('zipkinFilter integration test', ()=> {
                     topic: "test-topic"
                 }, mockSession, {
                     errcode: 0
-                }, ()=> {
+                }, () => {
                     should.exist(mockSession);
                     should.strictEqual(mockSession, _session);
                     let annotations = record.args.map(args => args[0]);
@@ -62,9 +65,14 @@ describe('zipkinFilter integration test', ()=> {
                     annotations[5].annotation.annotationType.should.equal('BinaryAnnotation');
                     annotations[5].annotation.key.should.equal('pomelo.res.errcode');
                     annotations[5].annotation.value.should.equal("0");
+                    annotations[6].annotation.annotationType.should.equal('BinaryAnnotation');
+                    annotations[6].annotation.key.should.equal('pomelo.res');
                     done();
                 });
             });
         });
+    });
+    after(() => {
+        delete process.env.IS_DEBUG;
     });
 });

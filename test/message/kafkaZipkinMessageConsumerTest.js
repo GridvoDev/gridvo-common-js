@@ -10,27 +10,28 @@ const should = require('should');
 const KafkaZipkinMessageConsumer = require('../../lib/message/kafkaZipkinMessageConsumer');
 const {createZipkinTracer} = require('../../lib/trace');
 
-describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
+describe('KafkaZipkinMessageConsumer(options) use case test', () => {
     let ctxImpl;
     let recorder;
     let record = sinon.spy();
     let messageConsumer;
     let client
     let producer;
-    before(done=> {
+    before(done => {
+        process.env.IS_DEBUG = true;
         function setupKafka() {
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 let {ZOOKEEPER_SERVICE_HOST = "127.0.0.1", ZOOKEEPER_SERVICE_PORT = "2181"} = process.env;
                 client = new kafka.Client(
                     `${ZOOKEEPER_SERVICE_HOST}:${ZOOKEEPER_SERVICE_PORT}`,
                     "test-consumer-client");
                 producer = new kafka.Producer(client);
-                producer.on('ready', ()=> {
-                    producer.createTopics(["test-topic3", "test-topic5"], true, (err, data)=> {
+                producer.on('ready', () => {
+                    producer.createTopics(["test-topic3", "test-topic5"], true, (err, data) => {
                         if (err) {
                             reject(err)
                         }
-                        client.refreshMetadata(["test-topic3", "test-topic5"], (err)=> {
+                        client.refreshMetadata(["test-topic3", "test-topic5"], (err) => {
                             if (err) {
                                 reject(err)
                             }
@@ -49,7 +50,7 @@ describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
                             producer.send([{
                                 topic: "test-topic3",
                                 messages: [JSON.stringify(message)]
-                            }], (err)=> {
+                            }], (err) => {
                                 if (err) {
                                     reject(err)
                                 }
@@ -58,7 +59,7 @@ describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
                         });
                     });
                 });
-                producer.on('error', (err)=> {
+                producer.on('error', (err) => {
                     reject(err);
                 });
             });
@@ -66,7 +67,7 @@ describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
         function* setup() {
             yield setupKafka();
         };
-        co(setup).then(()=> {
+        co(setup).then(() => {
             recorder = {record};
             ctxImpl = new ExplicitContext();
             let tracer = createZipkinTracer({ctxImpl, recorder});
@@ -75,19 +76,19 @@ describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
                 serviceName: "test-service"
             });
             done();
-        }).catch(err=> {
+        }).catch(err => {
             done(err);
         });
     });
-    describe('#consumeMessage(topics,callback)', ()=> {
-        context('produce topic message', ()=> {
-            it('should return topic message', done=> {
-                ctxImpl.scoped(()=> {
+    describe('#consumeMessage(topics,callback)', () => {
+        context('produce topic message', () => {
+            it('should return topic message', done => {
+                ctxImpl.scoped(() => {
                     messageConsumer.consumeMessage([{
                         topic: "test-topic3"
                     }, {
                         topic: "test-topic5"
-                    }], (err, message)=> {
+                    }], (err, message) => {
                         let data = JSON.parse(message.value);
                         data.suiteID.should.be.eql("suiteID");
                         data.corpID.should.be.eql("wxf8b4f85f3a794e77");
@@ -96,8 +97,8 @@ describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
                         let annotations = record.args.map(args => args[0]);
                         let traceId = annotations[0].traceId.traceId;
                         let spanId = annotations[0].traceId.spanId;
-                        annotations.forEach(ann=> ann.traceId.traceId.should.equal(traceId));
-                        annotations.forEach(ann=> ann.traceId.spanId.should.equal(spanId));
+                        annotations.forEach(ann => ann.traceId.traceId.should.equal(traceId));
+                        annotations.forEach(ann => ann.traceId.spanId.should.equal(spanId));
                         annotations[0].annotation.annotationType.should.equal('ServerRecv');
                         annotations[1].annotation.annotationType.should.equal("ServiceName");
                         annotations[1].annotation.serviceName.should.equal("test-service");
@@ -105,23 +106,26 @@ describe('KafkaZipkinMessageConsumer(options) use case test', ()=> {
                         annotations[2].annotation.name.should.equal("kafka client consumer");
                         annotations[3].annotation.annotationType.should.equal('LocalAddr');
                         annotations[4].annotation.annotationType.should.equal("BinaryAnnotation");
-                        annotations[4].annotation.key.should.equal("topic");
+                        annotations[4].annotation.key.should.equal("kafka.topic");
                         annotations[4].annotation.value.should.equal("test-topic3");
                         annotations[5].annotation.annotationType.should.equal('BinaryAnnotation');
+                        annotations[5].annotation.key.should.equal("kafka.message");
+                        annotations[6].annotation.annotationType.should.equal('BinaryAnnotation');
                         done();
                     });
                 });
             });
-            after(done=> {
+            after(done => {
                 producer.close();
-                client.close(()=> {
+                client.close(() => {
                     done();
                 });
             });
         });
     });
-    after(done=> {
-        messageConsumer.close(()=> {
+    after(done => {
+        delete process.env.IS_DEBUG;
+        messageConsumer.close(() => {
             done();
         });
     });

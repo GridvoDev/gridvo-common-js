@@ -10,30 +10,31 @@ const should = require('should');
 const KafkaZipkinMessageProducer = require('../../lib/message/kafkaZipkinMessageProducer');
 const {TraceContext, createZipkinTracer} = require('../../lib/trace');
 
-describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
+describe('KafkaZipkinMessageProducer(options) use case test', () => {
     let ctxImpl;
     let recorder;
     let record = sinon.spy();
     let messageProducer;
     let consumer;
-    before(done=> {
+    before(done => {
+        process.env.IS_DEBUG = true;
         function setupKafka() {
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 let {ZOOKEEPER_SERVICE_HOST = "127.0.0.1", ZOOKEEPER_SERVICE_PORT = "2181"} = process.env;
                 let client = new kafka.Client(
                     `${ZOOKEEPER_SERVICE_HOST}:${ZOOKEEPER_SERVICE_PORT}`,
                     "wechat-server-interaction-test-producer-client");
                 let initProducer = new kafka.Producer(client);
-                initProducer.on('ready', ()=> {
-                    initProducer.createTopics(["test-topic1", "test-topic2"], true, (err, data)=> {
+                initProducer.on('ready', () => {
+                    initProducer.createTopics(["test-topic1", "test-topic2"], true, (err, data) => {
                         if (err) {
                             reject(err)
                         }
-                        client.refreshMetadata(["test-topic1", "test-topic2"], (err)=> {
+                        client.refreshMetadata(["test-topic1", "test-topic2"], (err) => {
                             if (err) {
                                 reject(err)
                             }
-                            initProducer.close((err)=> {
+                            initProducer.close((err) => {
                                 if (err) {
                                     reject(err)
                                 }
@@ -42,7 +43,7 @@ describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
                         });
                     });
                 });
-                initProducer.on('error', (err)=> {
+                initProducer.on('error', (err) => {
                     reject(err);
                 });
             });
@@ -50,7 +51,7 @@ describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
         function* setup() {
             yield setupKafka();
         };
-        co(setup).then(()=> {
+        co(setup).then(() => {
             recorder = {record};
             ctxImpl = new ExplicitContext();
             let tracer = createZipkinTracer({ctxImpl, recorder});
@@ -59,22 +60,22 @@ describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
                 serviceName: "test-service"
             });
             done();
-        }).catch(err=> {
+        }).catch(err => {
             done(err);
         });
     });
-    describe('#produceMessage(topic, message, traceContext, callback)', ()=> {
-        context('produce topic message', ()=> {
-            it('should return null if no topic or message', done=> {
+    describe('#produceMessage(topic, message, traceContext, callback)', () => {
+        context('produce topic message', () => {
+            it('should return null if no topic or message', done => {
                 let message = null;
                 let traceContext = {};
-                messageProducer.produceMessage("test-topic1", message, traceContext, (err, data)=> {
+                messageProducer.produceMessage("test-topic1", message, traceContext, (err, data) => {
                     _.isNull(data).should.be.eql(true);
                     done();
                 });
             });
-            it('should return data,add http context to message and record http context if message is send success', done=> {
-                ctxImpl.scoped(()=> {
+            it('should return data,add http context to message and record http context if message is send success', done => {
+                ctxImpl.scoped(() => {
                     let message = {
                         suiteID: "suiteID",
                         corpID: "wxf8b4f85f3a794e77",
@@ -87,25 +88,27 @@ describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
                         flags: 1,
                         step: 3
                     });
-                    messageProducer.produceMessage("test-topic1", message, traceContext, (err, data)=> {
+                    messageProducer.produceMessage("test-topic1", message, traceContext, (err, data) => {
                         let annotations = record.args.map(args => args[0]);
                         let traceId = annotations[0].traceId.traceId;
                         let spanId = annotations[0].traceId.spanId;
-                        annotations.forEach(ann=> ann.traceId.traceId.should.equal(traceId));
-                        annotations.forEach(ann=> ann.traceId.spanId.should.equal(spanId));
+                        annotations.forEach(ann => ann.traceId.traceId.should.equal(traceId));
+                        annotations.forEach(ann => ann.traceId.spanId.should.equal(spanId));
                         annotations[0].annotation.annotationType.should.equal('ClientSend');
                         annotations[1].annotation.annotationType.should.equal("ServiceName");
                         annotations[1].annotation.serviceName.should.equal("test-service");
                         annotations[2].annotation.annotationType.should.equal("Rpc");
                         annotations[2].annotation.name.should.equal("kafka client produce");
                         annotations[3].annotation.annotationType.should.equal("BinaryAnnotation");
-                        annotations[3].annotation.key.should.equal("topic");
+                        annotations[3].annotation.key.should.equal("kafka.topic");
                         annotations[3].annotation.value.should.equal("test-topic1");
-                        annotations[4].annotation.annotationType.should.equal('ServerAddr');
-                        annotations[4].annotation.serviceName.should.equal('kafka');
-                        annotations[5].annotation.annotationType.should.equal('ClientRecv');
-                        annotations[6].annotation.annotationType.should.equal("BinaryAnnotation");
-                        annotations[6].annotation.key.should.equal("result");
+                        annotations[4].annotation.annotationType.should.equal("BinaryAnnotation");
+                        annotations[4].annotation.key.should.equal("kafka.message");
+                        annotations[5].annotation.annotationType.should.equal('ServerAddr');
+                        annotations[5].annotation.serviceName.should.equal('kafka');
+                        annotations[6].annotation.annotationType.should.equal('ClientRecv');
+                        annotations[7].annotation.annotationType.should.equal("BinaryAnnotation");
+                        annotations[7].annotation.key.should.equal("kafka.result");
                         _.isNull(data).should.be.eql(false);
                         let {ZOOKEEPER_SERVICE_HOST = "127.0.0.1", ZOOKEEPER_SERVICE_PORT = "2181"} = process.env;
                         let client = new kafka.Client(`${ZOOKEEPER_SERVICE_HOST}:${ZOOKEEPER_SERVICE_PORT}`);
@@ -132,8 +135,8 @@ describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
                     });
                 });
             });
-            after(done=> {
-                consumer.close(true, (err)=> {
+            after(done => {
+                consumer.close(true, (err) => {
                     if (err) {
                         done(err);
                     }
@@ -142,7 +145,8 @@ describe('KafkaZipkinMessageProducer(options) use case test', ()=> {
             });
         });
     });
-    after(done=> {
+    after(done => {
+        delete process.env.IS_DEBUG;
         messageProducer.close().then(done);
     });
 });
