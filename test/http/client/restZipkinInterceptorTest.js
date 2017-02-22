@@ -66,21 +66,21 @@ describe('restZipkinInterceptor integration test', () => {
                             annotations[1].annotation.annotationType.should.equal('ServiceName');
                             annotations[1].annotation.serviceName.should.equal('test-service');
                             annotations[2].annotation.annotationType.should.equal('Rpc');
-                            annotations[2].annotation.name.should.equal('rest send GET request');
+                            annotations[2].annotation.name.should.equal('client GET');
                             annotations[3].annotation.annotationType.should.equal('BinaryAnnotation');
-                            annotations[3].annotation.key.should.equal('http.url');
+                            annotations[3].annotation.key.should.equal('http.client.send.url');
                             annotations[3].annotation.value.should.equal(url);
                             annotations[4].annotation.annotationType.should.equal('BinaryAnnotation');
-                            annotations[4].annotation.key.should.equal('http.req_body');
+                            annotations[4].annotation.key.should.equal('http.client.req.body');
                             annotations[4].annotation.value.should.equal("null");
                             annotations[5].annotation.annotationType.should.equal('ServerAddr');
                             annotations[5].annotation.serviceName.should.equal('test-remote-service');
                             annotations[6].annotation.annotationType.should.equal('ClientRecv');
                             annotations[7].annotation.annotationType.should.equal('BinaryAnnotation');
-                            annotations[7].annotation.key.should.equal('http.status_code');
+                            annotations[7].annotation.key.should.equal('http.client.status.code');
                             annotations[7].annotation.value.should.equal("200");
                             annotations[8].annotation.annotationType.should.equal('BinaryAnnotation');
-                            annotations[8].annotation.key.should.equal('http.res_body');
+                            annotations[8].annotation.key.should.equal('http.client.res.body');
                             done();
                         }).catch(err => {
                             server.close();

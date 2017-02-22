@@ -100,15 +100,15 @@ describe('KafkaZipkinMessageProducer(options) use case test', () => {
                         annotations[2].annotation.annotationType.should.equal("Rpc");
                         annotations[2].annotation.name.should.equal("kafka client produce");
                         annotations[3].annotation.annotationType.should.equal("BinaryAnnotation");
-                        annotations[3].annotation.key.should.equal("kafka.topic");
+                        annotations[3].annotation.key.should.equal("kafka.produce.topic");
                         annotations[3].annotation.value.should.equal("test-topic1");
                         annotations[4].annotation.annotationType.should.equal("BinaryAnnotation");
-                        annotations[4].annotation.key.should.equal("kafka.message");
+                        annotations[4].annotation.key.should.equal("kafka.produce.message");
                         annotations[5].annotation.annotationType.should.equal('ServerAddr');
                         annotations[5].annotation.serviceName.should.equal('kafka');
                         annotations[6].annotation.annotationType.should.equal('ClientRecv');
                         annotations[7].annotation.annotationType.should.equal("BinaryAnnotation");
-                        annotations[7].annotation.key.should.equal("kafka.result");
+                        annotations[7].annotation.key.should.equal("kafka.produce.result");
                         _.isNull(data).should.be.eql(false);
                         let {ZOOKEEPER_SERVICE_HOST = "127.0.0.1", ZOOKEEPER_SERVICE_PORT = "2181"} = process.env;
                         let client = new kafka.Client(`${ZOOKEEPER_SERVICE_HOST}:${ZOOKEEPER_SERVICE_PORT}`);

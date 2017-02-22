@@ -106,10 +106,10 @@ describe('KafkaZipkinMessageConsumer(options) use case test', () => {
                         annotations[2].annotation.name.should.equal("kafka client consumer");
                         annotations[3].annotation.annotationType.should.equal('LocalAddr');
                         annotations[4].annotation.annotationType.should.equal("BinaryAnnotation");
-                        annotations[4].annotation.key.should.equal("kafka.topic");
+                        annotations[4].annotation.key.should.equal("kafka.consumer.topic");
                         annotations[4].annotation.value.should.equal("test-topic3");
                         annotations[5].annotation.annotationType.should.equal('BinaryAnnotation');
-                        annotations[5].annotation.key.should.equal("kafka.message");
+                        annotations[5].annotation.key.should.equal("kafka.consumer.message");
                         annotations[6].annotation.annotationType.should.equal('BinaryAnnotation');
                         done();
                     });
