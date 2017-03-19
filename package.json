@@ -1,6 +1,6 @@
 {
   "name": "gridvo-common-js",
-  "version": "0.0.20",
+  "version": "0.0.22",
   "author": {
     "name": "linmadan",
     "email": "772181827@qq.com"
@@ -19,13 +19,13 @@
   },
   "dependencies": {
     "co": "^4.6.0",
-    "kafka-node": "^1.4.0",
+    "kafka-node": "^1.6.0",
     "log4js": "^1.1.0",
-    "mongodb": "^2.2.21",
+    "mongodb": "^2.2.25",
     "rest": "^2.0.0",
     "underscore": "^1.8.3",
-    "zipkin": "^0.5.1",
-    "zipkin-transport-http": "^0.5.1",
-    "zipkin-transport-kafka": "^0.5.1"
+    "zipkin": "^0.6.1",
+    "zipkin-transport-http": "^0.6.1",
+    "zipkin-transport-kafka": "^0.6.2"
   }
 }
